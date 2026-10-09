@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Product | SmartInv{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card card-glass">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ action }} Product</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">SKU</label>
+              {{ form.sku }}
+              {% if form.sku.errors %}<div class="invalid-feedback d-block">{{ form.sku.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Barcode</label>
+              {{ form.barcode }}
+              {% if form.barcode.errors %}<div class="invalid-feedback d-block">{{ form.barcode.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+              {{ form.category }}
+              {% if form.category.errors %}<div class="invalid-feedback d-block">{{ form.category.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Supplier <span class="text-danger">*</span></label>
+              {{ form.supplier }}
+              {% if form.supplier.errors %}<div class="invalid-feedback d-block">{{ form.supplier.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Brand</label>
+              {{ form.brand }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Purchase Price (₹) <span class="text-danger">*</span></label>
+              {{ form.purchase_price }}
+              {% if form.purchase_price.errors %}<div class="invalid-feedback d-block">{{ form.purchase_price.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Selling Price (₹) <span class="text-danger">*</span></label>
+              {{ form.selling_price }}
+              {% if form.selling_price.errors %}<div class="invalid-feedback d-block">{{ form.selling_price.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Current Quantity <span class="text-danger">*</span></label>
+              {{ form.quantity }}
+              {% if form.quantity.errors %}<div class="invalid-feedback d-block">{{ form.quantity.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Min Quantity</label>
+              {{ form.min_quantity }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Max Quantity</label>
+              {{ form.max_quantity }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Weight</label>
+              {{ form.weight }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Unit <span class="text-danger">*</span></label>
+              {{ form.unit }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Description</label>
+              {{ form.description }}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Product Image</label>
+              {{ form.image }}
+            </div>
+            <div class="col-md-4 d-flex align-items-center mt-4">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Active Product</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>{{ action }} Product</button>
+            <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

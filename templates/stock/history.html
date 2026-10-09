@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Stock Movement History | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-heading-lg">Stock Movement History</h2>
+  <p class="text-muted mb-0">Complete audit log of all stock changes</p>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-6">
+        <input type="text" name="q" class="form-control" placeholder="Filter by product name or reference..." value="{{ search }}">
+      </div>
+      <div class="col-md-4">
+        <select name="type" class="form-select">
+          <option value="">All Movement Types</option>
+          {% for val, label in movement_choices %}
+          <option value="{{ val }}" {% if movement_type == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Product</th>
+            <th>Movement Type</th>
+            <th>Quantity</th>
+            <th>Stock (Before &rarr; After)</th>
+            <th>Reference</th>
+            <th>User</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in page_obj %}
+          <tr>
+            <td class="small">{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+            <td class="fw-semibold">{{ log.product.name }}</td>
+            <td>
+              <span class="badge {% if log.movement_type == 'in' %}bg-success{% elif log.movement_type == 'out' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                {{ log.get_movement_type_display }}
+              </span>
+            </td>
+            <td class="fw-bold">{{ log.quantity }}</td>
+            <td class="small text-muted">{{ log.previous_quantity }} &rarr; {{ log.new_quantity }}</td>
+            <td class="small">{{ log.reference|default:'—' }}</td>
+            <td class="small text-muted">{{ log.created_by.username|default:'System' }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-4 text-muted">No history records found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'partials/_pagination.html' %}
+{% endblock %}

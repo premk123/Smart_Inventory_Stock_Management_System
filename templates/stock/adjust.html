@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Stock Adjustment | SmartInv{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card card-glass border-warning">
+      <div class="card-header bg-warning bg-opacity-10">
+        <h5 class="mb-0 text-warning"><i class="bi bi-sliders me-2"></i>Stock Adjustment</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Select Product</label>
+            {{ form.product }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">New Stock Level</label>
+            {{ form.new_quantity }}
+            {% if form.new_quantity.errors %}<div class="invalid-feedback d-block">{{ form.new_quantity.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Reason for Adjustment</label>
+            {{ form.note }}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning text-dark"><i class="bi bi-check2-circle me-1"></i>Apply Adjustment</button>
+            <a href="{% url 'stock:list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

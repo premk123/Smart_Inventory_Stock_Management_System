@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Delete Product | SmartInv{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card card-glass border-danger">
+      <div class="card-header bg-danger bg-opacity-10">
+        <h5 class="mb-0 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h5>
+      </div>
+      <div class="card-body text-center py-5">
+        <i class="bi bi-trash3 fs-1 text-danger d-block mb-3"></i>
+        <h5>Delete Product: <strong>{{ product.name }}</strong>?</h5>
+        <p class="text-muted">SKU: {{ product.sku }}. This action cannot be undone.</p>
+        <form method="post" class="d-flex gap-2 justify-content-center mt-4">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>Yes, Delete</button>
+          <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

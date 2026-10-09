@@ -1,0 +1,86 @@
+{% load static %}
+<!-- ── Top Navigation Bar ─────────────────────────────────────── -->
+<header class="topnav" id="topnav">
+  <div class="topnav-left">
+    <!-- Hamburger toggle -->
+    <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+    <!-- Page title -->
+    <h1 class="page-heading">{{ page_title|default:"Dashboard" }}</h1>
+  </div>
+
+  <div class="topnav-right">
+    <!-- Global Search -->
+    <div class="search-wrapper" id="globalSearch">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" class="search-input" id="globalSearchInput" placeholder="Search products, orders..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle Theme">
+      <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+    </button>
+
+    <!-- Notifications Bell -->
+    <div class="dropdown">
+      <button class="icon-btn position-relative" data-bs-toggle="dropdown" aria-label="Notifications" id="notifBell">
+        <i class="bi bi-bell-fill"></i>
+        {% if unread_notifications_count > 0 %}
+        <span class="badge-dot"></span>
+        {% endif %}
+      </button>
+      <div class="dropdown-menu dropdown-menu-end notif-dropdown" style="min-width:340px;">
+        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+          <strong>Notifications</strong>
+          {% if unread_notifications_count > 0 %}
+          <a href="{% url 'notifications:mark_all_read' %}" class="small text-primary">Mark all read</a>
+          {% endif %}
+        </div>
+        {% for notif in recent_notifications %}
+        <a href="{% url 'notifications:mark_read' notif.pk %}" class="dropdown-item notif-item {% if not notif.is_read %}unread{% endif %}">
+          <div class="d-flex align-items-start gap-2">
+            <span class="notif-icon text-{{ notif.color }}"><i class="bi {{ notif.icon }}"></i></span>
+            <div>
+              <div class="fw-semibold small">{{ notif.title }}</div>
+              <div class="text-muted" style="font-size:.75rem;">{{ notif.message|truncatechars:60 }}</div>
+              <div class="text-muted" style="font-size:.7rem;">{{ notif.created_at|timesince }} ago</div>
+            </div>
+          </div>
+        </a>
+        {% empty %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-bell-slash fs-2"></i>
+          <p class="mt-2 mb-0">No new notifications</p>
+        </div>
+        {% endfor %}
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'notifications:list' %}" class="dropdown-item text-center small text-primary">View All Notifications</a>
+      </div>
+    </div>
+
+    <!-- User Menu -->
+    <div class="dropdown">
+      <button class="user-menu-btn" data-bs-toggle="dropdown" aria-label="User menu" id="userMenuBtn">
+        <img src="{{ request.user.get_profile_image_url }}" alt="Avatar" class="topnav-avatar" />
+        <span class="d-none d-md-block">{{ request.user.get_full_name|default:request.user.username }}</span>
+        <i class="bi bi-chevron-down small"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <div class="px-3 py-2">
+            <div class="fw-semibold">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <small class="text-muted">{{ request.user.email }}</small>
+          </div>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i> Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="bi bi-pencil me-2"></i> Edit Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:change_password' %}"><i class="bi bi-key me-2"></i> Change Password</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</header>

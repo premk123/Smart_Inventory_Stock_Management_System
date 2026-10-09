@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static inventory_tags %}
+
+{% block title %}Categories | SmartInv{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Categories</h2>
+    <p class="text-muted mb-0">Manage product categories</p>
+  </div>
+  {% if request.user.role in 'admin,manager' %}
+  <a href="{% url 'categories:create' %}" class="btn btn-primary" id="btn-add-category">
+    <i class="bi bi-plus-circle me-2"></i>Add Category
+  </a>
+  {% endif %}
+</div>
+
+<!-- Search & Filters -->
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end" id="filterForm">
+      <div class="col-md-5">
+        <label class="form-label small">Search</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search categories..." value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Per Page</label>
+        <select name="per_page" class="form-select">
+          {% for n in per_page_options %}
+          <option value="{{ n }}" {% if per_page == n|add:0 %}selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card card-glass">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span class="fw-semibold">{{ total }} categor{{ total|pluralize:'y,ies' }} found</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="categoriesTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Category Name</th>
+            <th>Products</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in page_obj %}
+          <tr>
+            <td class="text-muted small">{{ forloop.counter0|add:page_obj.start_index }}</td>
+            <td>
+              {% if cat.image %}
+              <img src="{{ cat.image.url }}" alt="{{ cat.name }}" style="width:45px;height:45px;object-fit:cover;border-radius:8px;">
+              {% else %}
+              <div class="img-placeholder-sm"><i class="bi bi-tag"></i></div>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'categories:detail' cat.pk %}" class="fw-semibold text-body">{{ cat.name }}</a>
+              {% if cat.description %}
+              <div class="text-muted small">{{ cat.description|truncatechars:50 }}</div>
+              {% endif %}
+            </td>
+            <td><span class="badge bg-info text-dark">{{ cat.get_product_count }}</span></td>
+            <td>
+              {% if cat.is_active %}
+              <span class="badge bg-success">Active</span>
+              {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ cat.created_at|date:"M d, Y" }}</td>
+            <td class="text-end">
+              <div class="btn-group">
+                <a href="{% url 'categories:detail' cat.pk %}" class="btn btn-sm btn-outline-info" title="View">
+                  <i class="bi bi-eye"></i>
+                </a>
+                {% if request.user.role in 'admin,manager' %}
+                <a href="{% url 'categories:update' cat.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% if request.user.can_delete %}
+                <a href="{% url 'categories:delete' cat.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </a>
+                {% endif %}
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5">
+              <i class="bi bi-tag fs-1 text-muted d-block mb-3"></i>
+              <p class="text-muted">No categories found.</p>
+              <a href="{% url 'categories:create' %}" class="btn btn-primary btn-sm">Add First Category</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'partials/_pagination.html' %}
+{% endblock %}

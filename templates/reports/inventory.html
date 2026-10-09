@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+{% block title %}Inventory Report | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Inventory Report</h2>
+    <p class="text-muted mb-0">Total inventory asset valuation: <strong>{{ total_value|currency }}</strong></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="?export=csv{% if category_id %}&category={{ category_id }}{% endif %}" class="btn btn-outline-success"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV</a>
+    <a href="?export=excel{% if category_id %}&category={{ category_id }}{% endif %}" class="btn btn-outline-primary"><i class="bi bi-file-earmark-excel me-1"></i>Export Excel</a>
+  </div>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small">Category</label>
+        <select name="category" class="form-select">
+          <option value="">All Categories</option>
+          {% for c in categories %}
+          <option value="{{ c.id }}" {% if category_id == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">Supplier</label>
+        <select name="supplier" class="form-select">
+          <option value="">All Suppliers</option>
+          {% for s in suppliers %}
+          <option value="{{ s.id }}" {% if supplier_id == s.id|stringformat:'s' %}selected{% endif %}>{{ s.company_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Generate Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr><th>SKU</th><th>Product</th><th>Category</th><th>Supplier</th><th>Purchase</th><th>Selling</th><th>Stock</th><th>Asset Value</th></tr>
+        </thead>
+        <tbody>
+          {% for p in products %}
+          <tr>
+            <td><code>{{ p.sku }}</code></td>
+            <td class="fw-semibold">{{ p.name }}</td>
+            <td>{{ p.category.name }}</td>
+            <td>{{ p.supplier.company_name }}</td>
+            <td>{{ p.purchase_price|currency }}</td>
+            <td>{{ p.selling_price|currency }}</td>
+            <td class="fw-bold">{{ p.quantity }} {{ p.unit }}</td>
+            <td class="fw-bold text-success">{{ p.stock_value|currency }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-center py-4 text-muted">No records match criteria.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

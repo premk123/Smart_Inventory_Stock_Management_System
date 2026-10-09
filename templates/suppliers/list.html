@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static inventory_tags %}
+
+{% block title %}Suppliers | SmartInv{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Suppliers</h2>
+    <p class="text-muted mb-0">Manage vendor details and contact information</p>
+  </div>
+  {% if request.user.role in 'admin,manager' %}
+  <a href="{% url 'suppliers:create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>Add Supplier
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filters -->
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label small">Search</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search company, contact person, phone, email..." value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Per Page</label>
+        <select name="per_page" class="form-select">
+          <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+          <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+          <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Suppliers Table -->
+<div class="card card-glass">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span class="fw-semibold">{{ total }} supplier{{ total|pluralize }} found</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Photo</th>
+            <th>Company</th>
+            <th>Contact Person</th>
+            <th>Phone & Email</th>
+            <th>City & State</th>
+            <th>Products</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for supplier in page_obj %}
+          <tr>
+            <td class="text-muted small">{{ forloop.counter0|add:page_obj.start_index }}</td>
+            <td>
+              {% if supplier.profile_image %}
+              <img src="{{ supplier.profile_image.url }}" alt="{{ supplier.company_name }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
+              {% else %}
+              <div class="img-placeholder-sm rounded-circle"><i class="bi bi-building"></i></div>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'suppliers:detail' supplier.pk %}" class="fw-semibold text-body">{{ supplier.company_name }}</a>
+              {% if supplier.gst_number %}
+              <div class="text-muted small">GST: {{ supplier.gst_number }}</div>
+              {% endif %}
+            </td>
+            <td>{{ supplier.supplier_name }}</td>
+            <td>
+              <div class="small"><i class="bi bi-telephone me-1 text-muted"></i>{{ supplier.phone }}</div>
+              <div class="small"><i class="bi bi-envelope me-1 text-muted"></i>{{ supplier.email }}</div>
+            </td>
+            <td class="small">{{ supplier.city }}, {{ supplier.state }}</td>
+            <td><span class="badge bg-info text-dark">{{ supplier.get_product_count }}</span></td>
+            <td>
+              {% if supplier.is_active %}
+              <span class="badge bg-success">Active</span>
+              {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <div class="btn-group">
+                <a href="{% url 'suppliers:detail' supplier.pk %}" class="btn btn-sm btn-outline-info" title="View"><i class="bi bi-eye"></i></a>
+                {% if request.user.role in 'admin,manager' %}
+                <a href="{% url 'suppliers:update' supplier.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                {% if request.user.can_delete %}
+                <a href="{% url 'suppliers:delete' supplier.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                {% endif %}
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <i class="bi bi-truck fs-1 text-muted d-block mb-3"></i>
+              <p class="text-muted">No suppliers found.</p>
+              <a href="{% url 'suppliers:create' %}" class="btn btn-primary btn-sm">Add First Supplier</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'partials/_pagination.html' %}
+{% endblock %}

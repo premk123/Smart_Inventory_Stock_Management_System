@@ -1,0 +1,163 @@
+{% load static %}
+<!-- ── Sidebar Navigation ─────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <i class="bi bi-boxes"></i>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">SmartInv</span>
+      <span class="brand-tagline">Inventory System</span>
+    </div>
+    <button class="sidebar-toggle-btn d-lg-none" id="sidebarClose" aria-label="Close sidebar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- User info -->
+  <div class="sidebar-user">
+    <img src="{{ request.user.get_profile_image_url }}" alt="Avatar" class="user-avatar" />
+    <div class="user-info">
+      <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+      <span class="user-role badge bg-primary">{{ request.user.get_role_display }}</span>
+    </div>
+  </div>
+
+  <!-- Navigation Links -->
+  <ul class="sidebar-nav">
+    <li class="nav-label">Main</li>
+
+    <li class="nav-item {% if '/dashboard/' in request.path %}active{% endif %}">
+      <a href="{% url 'dashboard:index' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <li class="nav-label">Inventory</li>
+
+    <li class="nav-item {% if '/categories/' in request.path %}active{% endif %}">
+      <a href="{% url 'categories:list' %}" class="nav-link">
+        <i class="bi bi-tag-fill"></i>
+        <span>Categories</span>
+      </a>
+    </li>
+
+    <li class="nav-item {% if '/suppliers/' in request.path %}active{% endif %}">
+      <a href="{% url 'suppliers:list' %}" class="nav-link">
+        <i class="bi bi-truck"></i>
+        <span>Suppliers</span>
+      </a>
+    </li>
+
+    <li class="nav-item {% if '/products/' in request.path %}active{% endif %}">
+      <a href="{% url 'products:list' %}" class="nav-link">
+        <i class="bi bi-box-seam-fill"></i>
+        <span>Products</span>
+      </a>
+    </li>
+
+    <li class="nav-label">Stock</li>
+
+    <li class="nav-item nav-item-dropdown {% if '/stock/' in request.path %}active{% endif %}">
+      <a href="#stockMenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="{% if '/stock/' in request.path %}true{% else %}false{% endif %}">
+        <i class="bi bi-archive-fill"></i>
+        <span>Stock</span>
+        <i class="bi bi-chevron-right nav-arrow ms-auto"></i>
+      </a>
+      <div class="collapse {% if '/stock/' in request.path %}show{% endif %}" id="stockMenu">
+        <ul class="nav-submenu">
+          <li><a href="{% url 'stock:list' %}" class="nav-sublink"><i class="bi bi-dot"></i> Current Stock</a></li>
+          <li><a href="{% url 'stock:stock_in' %}" class="nav-sublink"><i class="bi bi-dot"></i> Stock In</a></li>
+          <li><a href="{% url 'stock:stock_out' %}" class="nav-sublink"><i class="bi bi-dot"></i> Stock Out</a></li>
+          <li><a href="{% url 'stock:adjust' %}" class="nav-sublink"><i class="bi bi-dot"></i> Adjustment</a></li>
+          <li><a href="{% url 'stock:history' %}" class="nav-sublink"><i class="bi bi-dot"></i> History</a></li>
+          <li><a href="{% url 'stock:summary' %}" class="nav-sublink"><i class="bi bi-dot"></i> Summary</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-label">Sales</li>
+
+    <li class="nav-item {% if '/orders/' in request.path %}active{% endif %}">
+      <a href="{% url 'orders:list' %}" class="nav-link">
+        <i class="bi bi-bag-fill"></i>
+        <span>Orders</span>
+      </a>
+    </li>
+
+    <li class="nav-label">Analytics</li>
+
+    <li class="nav-item nav-item-dropdown {% if '/reports/' in request.path %}active{% endif %}">
+      <a href="#reportsMenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="{% if '/reports/' in request.path %}true{% else %}false{% endif %}">
+        <i class="bi bi-bar-chart-fill"></i>
+        <span>Reports</span>
+        <i class="bi bi-chevron-right nav-arrow ms-auto"></i>
+      </a>
+      <div class="collapse {% if '/reports/' in request.path %}show{% endif %}" id="reportsMenu">
+        <ul class="nav-submenu">
+          <li><a href="{% url 'reports:inventory' %}" class="nav-sublink"><i class="bi bi-dot"></i> Inventory</a></li>
+          <li><a href="{% url 'reports:sales' %}" class="nav-sublink"><i class="bi bi-dot"></i> Sales</a></li>
+          <li><a href="{% url 'reports:purchase' %}" class="nav-sublink"><i class="bi bi-dot"></i> Purchase</a></li>
+          <li><a href="{% url 'reports:low_stock' %}" class="nav-sublink"><i class="bi bi-dot"></i> Low Stock</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-label">Account</li>
+
+    <li class="nav-item {% if '/notifications/' in request.path %}active{% endif %}">
+      <a href="{% url 'notifications:list' %}" class="nav-link">
+        <i class="bi bi-bell-fill"></i>
+        <span>Notifications</span>
+        {% if unread_notifications_count > 0 %}
+        <span class="badge bg-danger ms-auto">{{ unread_notifications_count }}</span>
+        {% endif %}
+      </a>
+    </li>
+
+    <li class="nav-item {% if '/accounts/profile/' in request.path %}active{% endif %}">
+      <a href="{% url 'accounts:profile' %}" class="nav-link">
+        <i class="bi bi-person-fill"></i>
+        <span>Profile</span>
+      </a>
+    </li>
+
+    {% if user.role == 'admin' %}
+    <li class="nav-item">
+      <a href="/admin/" class="nav-link" target="_blank">
+        <i class="bi bi-shield-fill-check"></i>
+        <span>Admin Panel</span>
+        <i class="bi bi-box-arrow-up-right ms-auto small"></i>
+      </a>
+    </li>
+    {% endif %}
+
+    <li class="nav-item mt-2">
+      <a href="{% url 'accounts:logout' %}" class="nav-link text-danger">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Stock Alerts Footer -->
+  {% if nav_low_stock_count > 0 or nav_out_of_stock_count > 0 %}
+  <div class="sidebar-footer">
+    {% if nav_out_of_stock_count > 0 %}
+    <a href="{% url 'stock:list' %}?stock=out" class="alert-pill danger">
+      <i class="bi bi-x-circle-fill"></i> {{ nav_out_of_stock_count }} Out of Stock
+    </a>
+    {% endif %}
+    {% if nav_low_stock_count > 0 %}
+    <a href="{% url 'stock:list' %}?stock=low" class="alert-pill warning">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{ nav_low_stock_count }} Low Stock
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</nav>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Supplier | SmartInv{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-glass">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-truck me-2"></i>{{ action }} Supplier</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Name <span class="text-danger">*</span></label>
+              {{ form.company_name }}
+              {% if form.company_name.errors %}<div class="invalid-feedback d-block">{{ form.company_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Contact Person <span class="text-danger">*</span></label>
+              {{ form.supplier_name }}
+              {% if form.supplier_name.errors %}<div class="invalid-feedback d-block">{{ form.supplier_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+              {{ form.phone }}
+              {% if form.phone.errors %}<div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">GST Number</label>
+              {{ form.gst_number }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Profile Photo</label>
+              {{ form.profile_image }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Address <span class="text-danger">*</span></label>
+              {{ form.address }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+              {{ form.city }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">State <span class="text-danger">*</span></label>
+              {{ form.state }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Pincode <span class="text-danger">*</span></label>
+              {{ form.pincode }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Country</label>
+              {{ form.country }}
+            </div>
+            <div class="col-md-6 d-flex align-items-center mt-4">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Active</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>{{ action }} Supplier</button>
+            <a href="{% url 'suppliers:list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

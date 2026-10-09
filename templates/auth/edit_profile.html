@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile | SmartInv{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-glass">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Profile</h5>
+      </div>
+      <div class="card-body">
+        <!-- Image Preview -->
+        <div class="text-center mb-4">
+          <img src="{{ request.user.get_profile_image_url }}" alt="Profile" class="profile-avatar-lg" id="imgPreview" />
+          <p class="text-muted small mt-2">Click below to upload a new photo</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Last Name</label>
+              {{ form.last_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              {{ form.phone }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">City</label>
+              {{ form.city }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">State</label>
+              {{ form.state }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address</label>
+              {{ form.address }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Profile Picture</label>
+              {{ form.profile_image }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save me-2"></i>Save Changes
+            </button>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Profile image preview
+  document.querySelector('input[name="profile_image"]').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (ev) => { document.getElementById('imgPreview').src = ev.target.result; };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+</script>
+{% endblock %}

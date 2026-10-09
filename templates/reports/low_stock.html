@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Low Stock Report | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-heading-lg">Low Stock Replenishment Report</h2>
+  <a href="?export=csv" class="btn btn-outline-success"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV</a>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr><th>SKU</th><th>Product</th><th>Category</th><th>Current Stock</th><th>Min Threshold</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for p in products %}
+          <tr>
+            <td><code>{{ p.sku }}</code></td>
+            <td class="fw-semibold">{{ p.name }}</td>
+            <td>{{ p.category.name }}</td>
+            <td class="fw-bold text-danger">{{ p.quantity }} {{ p.unit }}</td>
+            <td>{{ p.min_quantity }} {{ p.unit }}</td>
+            <td>
+              {% if p.quantity == 0 %}<span class="badge bg-danger">Out of Stock</span>{% else %}<span class="badge bg-warning text-dark">Low Stock</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-4 text-success"><i class="bi bi-check-circle fs-3 d-block mb-2"></i>All stock levels are above threshold.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

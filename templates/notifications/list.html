@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Notifications | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Notification Center</h2>
+    <p class="text-muted mb-0">System alerts, inventory warnings, and order updates</p>
+  </div>
+  <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-check-all me-1"></i>Mark All Read</a>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      {% for notif in notifications %}
+      <a href="{% url 'notifications:mark_read' notif.pk %}" class="list-group-item list-group-item-action p-3 {% if not notif.is_read %}bg-primary bg-opacity-10{% endif %}">
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-{{ notif.color }} fs-3"><i class="bi {{ notif.icon }}"></i></div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="mb-1 fw-bold">{{ notif.title }}</h6>
+              <small class="text-muted">{{ notif.created_at|timesince }} ago</small>
+            </div>
+            <p class="mb-0 text-muted small">{{ notif.message }}</p>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
+        <p class="mb-0">No notifications.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

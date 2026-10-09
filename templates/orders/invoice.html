@@ -1,0 +1,80 @@
+{% load inventory_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice #{{ order.invoice_number }}</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 20px; }
+    .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 14px; line-height: 24px; }
+    .invoice-box table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+    .invoice-box table td { padding: 8px; vertical-align: top; }
+    .invoice-box table tr.top td table td { padding-bottom: 20px; }
+    .invoice-box table tr.heading td { background: #1e293b; color: #fff; font-weight: bold; }
+    .invoice-box table tr.item td { border-bottom: 1px solid #eee; }
+    .invoice-box table tr.total td { border-top: 2px solid #1e293b; font-weight: bold; }
+    @media print { .no-print { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="max-width:800px;margin:10px auto;text-align:right;">
+    <button onclick="window.print()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;">Print / Save PDF</button>
+  </div>
+  <div class="invoice-box">
+    <table>
+      <tr class="top">
+        <td colspan="4">
+          <table>
+            <tr>
+              <td><h2>SmartInv</h2>Smart Inventory Management</td>
+              <td style="text-align:right;">
+                <strong>INVOICE</strong><br>
+                Invoice #: {{ order.invoice_number }}<br>
+                Order #: {{ order.order_number }}<br>
+                Date: {{ order.created_at|date:"Y-m-d" }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          <table>
+            <tr>
+              <td>
+                <strong>Billed To:</strong><br>
+                {{ order.customer_name }}<br>
+                {{ order.customer_phone }}<br>
+                {{ order.customer_address }}
+              </td>
+              <td style="text-align:right;">
+                <strong>Payment Details:</strong><br>
+                Status: {{ order.get_payment_status_display }}<br>
+                Method: {{ order.get_payment_method_display }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr class="heading">
+        <td>Item</td>
+        <td>Price</td>
+        <td>Qty</td>
+        <td style="text-align:right;">Total</td>
+      </tr>
+      {% for item in items %}
+      <tr class="item">
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.unit_price|currency }}</td>
+        <td>{{ item.quantity }}</td>
+        <td style="text-align:right;">{{ item.total_price|currency }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total">
+        <td colspan="3" style="text-align:right;"><strong>Grand Total:</strong></td>
+        <td style="text-align:right;"><strong>{{ order.grand_total|currency }}</strong></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

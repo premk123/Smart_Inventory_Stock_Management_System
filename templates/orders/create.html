@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+
+{% block title %}Create Order | SmartInv{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card card-glass">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-bag-plus me-2"></i>Create New Order</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" id="orderCreateForm" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="items_data" id="itemsDataInput" value="[]">
+
+          <!-- Customer details -->
+          <h6 class="fw-bold mb-3 border-bottom pb-2">Customer Information</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Customer Name <span class="text-danger">*</span></label>
+              {{ form.customer_name }}
+              {% if form.customer_name.errors %}<div class="invalid-feedback d-block">{{ form.customer_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+              {{ form.customer_phone }}
+              {% if form.customer_phone.errors %}<div class="invalid-feedback d-block">{{ form.customer_phone.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Email</label>
+              {{ form.customer_email }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Billing/Shipping Address</label>
+              {{ form.customer_address }}
+            </div>
+          </div>
+
+          <!-- Product Picker Table -->
+          <h6 class="fw-bold mb-3 border-bottom pb-2">Order Line Items</h6>
+
+          <!-- Search AJAX row -->
+          <div class="position-relative mb-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="productSearchInput" class="form-control" placeholder="Search product by name or SKU to add to order..." autocomplete="off">
+            </div>
+            <div class="dropdown-menu w-100 shadow" id="productSearchDropdown"></div>
+          </div>
+
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle" id="orderItemsTable">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th style="width:140px;">Unit Price (₹)</th>
+                  <th style="width:120px;">Qty</th>
+                  <th style="width:120px;">Discount (₹)</th>
+                  <th style="width:140px;">Total (₹)</th>
+                  <th style="width:50px;"></th>
+                </tr>
+              </thead>
+              <tbody id="orderItemsBody">
+                <tr id="emptyRow">
+                  <td colspan="6" class="text-center py-4 text-muted">Use the search box above to add products to this order.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Order Summary Details -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Payment Method</label>
+                {{ form.payment_method }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Payment Status</label>
+                {{ form.payment_status }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Order Status</label>
+                {{ form.status }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Order Note</label>
+                {{ form.note }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card bg-body-tertiary border-0 p-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Subtotal:</span>
+                  <span class="fw-semibold" id="lblSubtotal">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>GST (%):</span>
+                  <div style="width:100px;">{{ form.gst_percent }}</div>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>GST Tax Amount:</span>
+                  <span id="lblTax">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Shipping Charge (₹):</span>
+                  <div style="width:120px;">{{ form.shipping_charge }}</div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span>Overall Discount (₹):</span>
+                  <div style="width:120px;">{{ form.discount }}</div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fs-5 fw-bold text-success">
+                  <span>Grand Total:</span>
+                  <span id="lblGrandTotal">₹0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle me-2"></i>Submit & Save Order</button>
+            <a href="{% url 'orders:list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let lineItems = [];
+
+const searchInput = document.getElementById('productSearchInput');
+const dropdown = document.getElementById('productSearchDropdown');
+const itemsBody = document.getElementById('orderItemsBody');
+const emptyRow = document.getElementById('emptyRow');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim();
+  if (q.length < 2) { dropdown.classList.remove('show'); return; }
+  fetch(`/products/api/search/?q=${encodeURIComponent(q)}`)
+    .then(r => r.json())
+    .then(data => {
+      dropdown.innerHTML = '';
+      if (!data.products || data.products.length === 0) {
+        dropdown.innerHTML = '<div class="dropdown-item text-muted">No in-stock products found</div>';
+      } else {
+        data.products.forEach(p => {
+          const item = document.createElement('a');
+          item.className = 'dropdown-item d-flex justify-content-between align-items-center';
+          item.href = '#';
+          item.innerHTML = `<div><strong>${p.name}</strong> <small class="text-muted">(${p.sku})</small></div><span class="badge bg-success">₹${p.selling_price}</span>`;
+          item.onclick = (e) => {
+            e.preventDefault();
+            addProductToTable(p);
+            dropdown.classList.remove('show');
+            searchInput.value = '';
+          };
+          dropdown.appendChild(item);
+        });
+      }
+      dropdown.classList.add('show');
+    });
+});
+
+function addProductToTable(p) {
+  const existing = lineItems.find(i => i.product_id === p.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    lineItems.push({
+      product_id: p.id,
+      name: p.name,
+      unit_price: parseFloat(p.selling_price),
+      quantity: 1,
+      discount: 0
+    });
+  }
+  renderTable();
+}
+
+function renderTable() {
+  if (lineItems.length === 0) {
+    itemsBody.innerHTML = '<tr id="emptyRow"><td colspan="6" class="text-center py-4 text-muted">Use the search box above to add products to this order.</td></tr>';
+  } else {
+    itemsBody.innerHTML = '';
+    lineItems.forEach((item, index) => {
+      const row = document.createElement('tr');
+      const total = (item.unit_price * item.quantity) - item.discount;
+      row.innerHTML = `
+        <td><strong>${item.name}</strong></td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm" value="${item.unit_price}" onchange="updateItem(${index}, 'unit_price', this.value)"></td>
+        <td><input type="number" min="1" class="form-control form-control-sm" value="${item.quantity}" onchange="updateItem(${index}, 'quantity', this.value)"></td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm" value="${item.discount}" onchange="updateItem(${index}, 'discount', this.value)"></td>
+        <td class="fw-bold">₹${total.toFixed(2)}</td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></td>
+      `;
+      itemsBody.appendChild(row);
+    });
+  }
+  calculateTotals();
+}
+
+function updateItem(index, key, val) {
+  lineItems[index][key] = parseFloat(val) || 0;
+  renderTable();
+}
+
+function removeItem(index) {
+  lineItems.splice(index, 1);
+  renderTable();
+}
+
+function calculateTotals() {
+  let subtotal = 0;
+  lineItems.forEach(i => subtotal += (i.unit_price * i.quantity) - i.discount);
+  
+  const gstPct = parseFloat(document.getElementById('id_gst_percent').value) || 0;
+  const shipping = parseFloat(document.getElementById('id_shipping_charge').value) || 0;
+  const discount = parseFloat(document.getElementById('id_discount').value) || 0;
+
+  const tax = subtotal * (gstPct / 100);
+  const grand = subtotal + tax + shipping - discount;
+
+  document.getElementById('lblSubtotal').innerText = `₹${subtotal.toFixed(2)}`;
+  document.getElementById('lblTax').innerText = `₹${tax.toFixed(2)}`;
+  document.getElementById('lblGrandTotal').innerText = `₹${Math.max(0, grand).toFixed(2)}`;
+
+  document.getElementById('itemsDataInput').value = JSON.stringify(lineItems);
+}
+
+document.getElementById('id_gst_percent').addEventListener('input', calculateTotals);
+document.getElementById('id_shipping_charge').addEventListener('input', calculateTotals);
+document.getElementById('id_discount').addEventListener('input', calculateTotals);
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+{% block title %}Sales Report | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Sales Performance Report</h2>
+    <p class="text-muted mb-0">Total Sales: <strong>{{ total_revenue|currency }}</strong> | Orders: <strong>{{ total_orders }}</strong></p>
+  </div>
+  <a href="?export=csv&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-outline-success"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV</a>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small">From Date</label>
+        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">To Date</label>
+        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i>Filter Sales</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr><th>Order #</th><th>Customer</th><th>Phone</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td class="fw-bold">{{ o.order_number }}</td>
+            <td>{{ o.customer_name }}</td>
+            <td>{{ o.customer_phone }}</td>
+            <td class="small">{{ o.created_at|date:"Y-m-d" }}</td>
+            <td class="fw-bold text-success">{{ o.grand_total|currency }}</td>
+            <td><span class="badge bg-{{ o.status_badge }}">{{ o.get_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-4 text-muted">No sales in selected range.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

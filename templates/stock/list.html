@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+
+{% block title %}Current Stock | SmartInv{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Stock Management</h2>
+    <p class="text-muted mb-0">Monitor current stock levels and alerts</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'stock:stock_in' %}" class="btn btn-success"><i class="bi bi-arrow-down-left-circle me-1"></i>Stock In</a>
+    <a href="{% url 'stock:stock_out' %}" class="btn btn-danger"><i class="bi bi-arrow-up-right-circle me-1"></i>Stock Out</a>
+    <a href="{% url 'stock:adjust' %}" class="btn btn-warning"><i class="bi bi-sliders me-1"></i>Adjust</a>
+  </div>
+</div>
+
+<!-- Stock summary pill bar -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card card-glass text-center py-3">
+      <h3 class="fw-bold mb-0 text-primary">{{ total }}</h3>
+      <span class="text-muted small">Total Products Tracked</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-glass text-center py-3">
+      <h3 class="fw-bold mb-0 text-warning">{{ low_count }}</h3>
+      <span class="text-muted small">Low Stock Alert</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-glass text-center py-3">
+      <h3 class="fw-bold mb-0 text-danger">{{ out_count }}</h3>
+      <span class="text-muted small">Out of Stock Alert</span>
+    </div>
+  </div>
+</div>
+
+<!-- Table & Filters -->
+<div class="card card-glass">
+  <div class="card-header">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search product or SKU..." value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <select name="stock" class="form-select">
+          <option value="">All Stock Status</option>
+          <option value="normal" {% if stock_filter == 'normal' %}selected{% endif %}>In Stock</option>
+          <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low Stock</option>
+          <option value="out" {% if stock_filter == 'out' %}selected{% endif %}>Out of Stock</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i></button>
+      </div>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Min / Max</th>
+            <th>Current Stock</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in page_obj %}
+          <tr>
+            <td><a href="{% url 'products:detail' p.pk %}" class="fw-semibold text-body">{{ p.name }}</a></td>
+            <td><code>{{ p.sku }}</code></td>
+            <td><span class="badge bg-secondary">{{ p.category.name }}</span></td>
+            <td class="small text-muted">{{ p.min_quantity }} / {{ p.max_quantity }}</td>
+            <td class="fw-bold fs-6">{{ p.quantity }} {{ p.unit }}</td>
+            <td>
+              {% if p.quantity == 0 %}<span class="badge bg-danger">Out of Stock</span>
+              {% elif p.quantity <= p.min_quantity %}<span class="badge bg-warning text-dark">Low Stock</span>
+              {% else %}<span class="badge bg-success">Healthy</span>{% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'stock:stock_in' %}?product={{ p.id }}" class="btn btn-sm btn-outline-success" title="Add Stock"><i class="bi bi-plus-lg"></i></a>
+              <a href="{% url 'stock:stock_out' %}?product={{ p.id }}" class="btn btn-sm btn-outline-danger" title="Remove Stock"><i class="bi bi-dash-lg"></i></a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-4 text-muted">No stock records found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'partials/_pagination.html' %}
+{% endblock %}

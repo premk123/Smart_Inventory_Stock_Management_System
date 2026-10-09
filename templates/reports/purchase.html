@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Purchase Report | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-heading-lg">Purchase / Stock In Procurement Report</h2>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small">From Date</label>
+        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">To Date</label>
+        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i>Filter Purchases</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card card-glass">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr><th>Date</th><th>Product</th><th>Quantity Added</th><th>Reference</th><th>Recorded By</th></tr>
+        </thead>
+        <tbody>
+          {% for m in movements %}
+          <tr>
+            <td class="small">{{ m.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="fw-semibold">{{ m.product.name }}</td>
+            <td class="fw-bold text-success">+{{ m.quantity }} {{ m.product.unit }}</td>
+            <td>{{ m.reference|default:'—' }}</td>
+            <td class="small text-muted">{{ m.created_by.username|default:'System' }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center py-4 text-muted">No procurement records found for range.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

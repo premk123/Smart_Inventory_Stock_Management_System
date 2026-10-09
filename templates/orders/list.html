@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+
+{% block title %}Orders | SmartInv{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <div>
+    <h2 class="page-heading-lg">Customer Orders</h2>
+    <p class="text-muted mb-0">Sales transactions, invoices, and order status</p>
+  </div>
+  <a href="{% url 'orders:create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>Create Order
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card card-glass mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small">Search</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Order #, customer, phone..." value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Order Status</label>
+        <select name="status" class="form-select">
+          <option value="">All Statuses</option>
+          <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="processing" {% if status == 'processing' %}selected{% endif %}>Processing</option>
+          <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+          <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Payment Status</label>
+        <select name="payment" class="form-select">
+          <option value="">All Payments</option>
+          <option value="paid" {% if payment == 'paid' %}selected{% endif %}>Paid</option>
+          <option value="unpaid" {% if payment == 'unpaid' %}selected{% endif %}>Unpaid</option>
+          <option value="partial" {% if payment == 'partial' %}selected{% endif %}>Partial</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card card-glass">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span class="fw-semibold">{{ total }} order{{ total|pluralize }} found</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Invoice #</th>
+            <th>Customer Name</th>
+            <th>Phone</th>
+            <th>Grand Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in page_obj %}
+          <tr>
+            <td class="fw-bold"><a href="{% url 'orders:detail' order.pk %}" class="text-primary">{{ order.order_number }}</a></td>
+            <td><code>{{ order.invoice_number }}</code></td>
+            <td class="fw-semibold">{{ order.customer_name }}</td>
+            <td class="small">{{ order.customer_phone }}</td>
+            <td class="fw-bold text-success">{{ order.grand_total|currency }}</td>
+            <td><span class="badge bg-{{ order.payment_badge }}">{{ order.get_payment_status_display }}</span></td>
+            <td><span class="badge bg-{{ order.status_badge }}">{{ order.get_status_display }}</span></td>
+            <td class="small text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+            <td class="text-end">
+              <div class="btn-group">
+                <a href="{% url 'orders:detail' order.pk %}" class="btn btn-sm btn-outline-info" title="View"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'orders:invoice' order.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Invoice"><i class="bi bi-printer"></i></a>
+                {% if request.user.can_delete %}
+                <a href="{% url 'orders:delete' order.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="9" class="text-center py-5 text-muted">No orders found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include 'partials/_pagination.html' %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+{% block title %}Stock Summary | SmartInv{% endblock %}
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-heading-lg">Stock Valuation & Summary</h2>
+  <p class="text-muted mb-0">Financial value distribution across categories</p>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card card-glass p-3 text-center">
+      <span class="text-muted small">Total Inventory Asset Value</span>
+      <h2 class="fw-bold text-success mt-1 mb-0">{{ total_value|currency }}</h2>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card card-glass p-3 text-center">
+      <span class="text-muted small">Total Active SKUs</span>
+      <h2 class="fw-bold text-primary mt-1 mb-0">{{ total_items }}</h2>
+    </div>
+  </div>
+</div>
+
+<div class="card card-glass mb-4">
+  <div class="card-header"><h5 class="mb-0">Valuation by Category</h5></div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Product Count</th>
+            <th>Category Stock Value</th>
+            <th>% of Total Inventory</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cat_summary %}
+          <tr>
+            <td class="fw-semibold">{{ item.category.name }}</td>
+            <td>{{ item.count }}</td>
+            <td class="fw-semibold text-success">{{ item.value|currency }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height: 6px;">
+                  <div class="progress-bar bg-primary" style="width: {{ item.value|percentage:total_value }}%;"></div>
+                </div>
+                <span class="small text-muted">{{ item.value|percentage:total_value }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

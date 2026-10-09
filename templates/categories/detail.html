@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+{% block title %}{{ category.name }} | SmartInv{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card card-glass text-center">
+      <div class="card-body py-5">
+        {% if category.image %}
+        <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width:120px;height:120px;object-fit:cover;border-radius:16px;" class="mb-3">
+        {% else %}
+        <div class="img-placeholder-xl mx-auto mb-3"><i class="bi bi-tag fs-1"></i></div>
+        {% endif %}
+        <h4 class="fw-bold">{{ category.name }}</h4>
+        {% if category.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+        <p class="text-muted mt-3 small">{{ category.description|default:'No description.' }}</p>
+        <div class="mt-3 d-flex gap-2 justify-content-center">
+          <a href="{% url 'categories:update' category.pk %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
+          <a href="{% url 'categories:list' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card card-glass">
+      <div class="card-header"><h6 class="mb-0">Products in {{ category.name }} ({{ products.count }})</h6></div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock</th></tr></thead>
+            <tbody>
+              {% for p in products %}
+              <tr>
+                <td><a href="{% url 'products:detail' p.pk %}" class="fw-semibold">{{ p.name }}</a></td>
+                <td><code>{{ p.sku }}</code></td>
+                <td>{{ p.selling_price|currency }}</td>
+                <td>
+                  {% if p.quantity == 0 %}<span class="badge bg-danger">{{ p.quantity }}</span>
+                  {% elif p.quantity <= p.min_quantity %}<span class="badge bg-warning text-dark">{{ p.quantity }}</span>
+                  {% else %}<span class="badge bg-success">{{ p.quantity }}</span>{% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-center py-4 text-muted">No products in this category.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

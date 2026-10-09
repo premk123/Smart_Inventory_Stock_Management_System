@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+{% block title %}Order #{{ order.order_number }} | SmartInv{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-8">
+    <div class="card card-glass mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Order Items ({{ items.count }})</h5>
+        <a href="{% url 'orders:invoice' order.pk %}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="bi bi-printer me-1"></i>Print Invoice</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr><th>Product</th><th>SKU</th><th>Price</th><th>Qty</th><th>Discount</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td class="fw-semibold">{{ item.product.name }}</td>
+                <td><code>{{ item.product.sku }}</code></td>
+                <td>{{ item.unit_price|currency }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.discount|currency }}</td>
+                <td class="fw-bold">{{ item.total_price|currency }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-glass mb-4">
+      <div class="card-header"><h6 class="mb-0">Order Summary</h6></div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2"><span>Subtotal:</span><span>{{ order.subtotal|currency }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>GST ({{ order.gst_percent }}%):</span><span>{{ order.tax_amount|currency }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>Shipping:</span><span>{{ order.shipping_charge|currency }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>Discount:</span><span>-{{ order.discount|currency }}</span></div>
+        <hr>
+        <div class="d-flex justify-content-between fs-5 fw-bold text-success"><span>Grand Total:</span><span>{{ order.grand_total|currency }}</span></div>
+      </div>
+    </div>
+
+    <div class="card card-glass">
+      <div class="card-header"><h6 class="mb-0">Update Status</h6></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small">Order Status</label>
+            {{ status_form.status }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Payment Status</label>
+            {{ status_form.payment_status }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save me-1"></i>Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

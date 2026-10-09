@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static inventory_tags %}
+
+{% block title %}Profile | SmartInv{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Profile Card -->
+  <div class="col-lg-4">
+    <div class="card card-glass h-100">
+      <div class="card-body text-center py-5">
+        <div class="profile-avatar-wrapper mx-auto mb-4">
+          <img src="{{ user_obj.get_profile_image_url }}" alt="Profile" class="profile-avatar-lg" id="profileImg" />
+        </div>
+        <h4 class="mb-1 fw-bold">{{ user_obj.get_full_name|default:user_obj.username }}</h4>
+        <span class="badge bg-primary mb-3">{{ user_obj.get_role_display }}</span>
+        <p class="text-muted small mb-1"><i class="bi bi-envelope me-2"></i>{{ user_obj.email|default:'—' }}</p>
+        <p class="text-muted small mb-1"><i class="bi bi-telephone me-2"></i>{{ user_obj.phone|default:'—' }}</p>
+        <p class="text-muted small mb-1"><i class="bi bi-geo-alt me-2"></i>{{ user_obj.city|default:'—' }}{% if user_obj.state %}, {{ user_obj.state }}{% endif %}</p>
+        <p class="text-muted small"><i class="bi bi-calendar me-2"></i>Joined {{ user_obj.date_joined|date:"M d, Y" }}</p>
+
+        <div class="d-flex gap-2 justify-content-center mt-4">
+          <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit Profile
+          </a>
+          <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-key me-1"></i> Change Password
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Details -->
+  <div class="col-lg-8">
+    <div class="card card-glass">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-person-fill me-2"></i>Account Details</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="detail-label">First Name</label>
+            <p class="detail-value">{{ user_obj.first_name|default:'—' }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">Last Name</label>
+            <p class="detail-value">{{ user_obj.last_name|default:'—' }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">Username</label>
+            <p class="detail-value">{{ user_obj.username }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">Email</label>
+            <p class="detail-value">{{ user_obj.email|default:'—' }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">Phone</label>
+            <p class="detail-value">{{ user_obj.phone|default:'—' }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">Role</label>
+            <p class="detail-value">
+              <span class="badge bg-primary">{{ user_obj.get_role_display }}</span>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">City</label>
+            <p class="detail-value">{{ user_obj.city|default:'—' }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="detail-label">State</label>
+            <p class="detail-value">{{ user_obj.state|default:'—' }}</p>
+          </div>
+          <div class="col-12">
+            <label class="detail-label">Address</label>
+            <p class="detail-value">{{ user_obj.address|default:'—' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Status Card -->
+    <div class="card card-glass mt-4">
+      <div class="card-body">
+        <div class="row text-center g-3">
+          <div class="col-4">
+            <div class="stat-mini">
+              <i class="bi bi-shield-check-fill text-success fs-2"></i>
+              <p class="mb-0 mt-2 fw-semibold">Active</p>
+              <small class="text-muted">Account Status</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-mini">
+              <i class="bi bi-calendar-check-fill text-primary fs-2"></i>
+              <p class="mb-0 mt-2 fw-semibold">{{ user_obj.date_joined|date:"M Y" }}</p>
+              <small class="text-muted">Member Since</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="stat-mini">
+              <i class="bi bi-clock-fill text-warning fs-2"></i>
+              <p class="mb-0 mt-2 fw-semibold">{{ user_obj.last_login|date:"M d"|default:"—" }}</p>
+              <small class="text-muted">Last Login</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
